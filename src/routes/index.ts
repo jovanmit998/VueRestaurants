@@ -4,6 +4,11 @@ import Search from "./../components/Search.vue";
 const routes: RouteRecordRaw[] = [
   {
     path: "/",
+    redirect: "/search",
+  },
+
+  {
+    path: "/search",
     name: "Search",
     component: Search,
   },

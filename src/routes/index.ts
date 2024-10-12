@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
-import Search from "./../components/Search.vue";
+import Search from "../views/Search.vue";
 
 const routes: RouteRecordRaw[] = [
   {

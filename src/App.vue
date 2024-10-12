@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import Search from './components/Search.vue'
+import Search from './views/Search.vue'
 </script>
 
 <template>
-  <Search msg="Vite + Vue" />
+  <Search />
 </template>
 
-<style scoped></style>
+<style scoped lang="scss"></style>

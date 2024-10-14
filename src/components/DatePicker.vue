@@ -12,7 +12,12 @@ import {ElDatePicker} from 'element-plus'
 </script>
 
 <template>
-  <el-date-picker type="date" placeholder="Pick a day" :size="'default'" />
+  <el-date-picker
+    style="width: 12rem;"
+    type="date"
+    placeholder="Pick a day"
+    :size="'large'"
+  />
 </template>
 
 <style scoped lang="scss"></style>

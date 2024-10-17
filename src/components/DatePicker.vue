@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import {ElDatePicker} from 'element-plus'
+import { computed } from 'vue';
 
 //   function test(selectedDate: Date) {
 //     // if(!selectedDate) return;
@@ -9,11 +10,19 @@ import {ElDatePicker} from 'element-plus'
 //     // const date = `${year}${month}${day}`;
 //     // console.log(date)
 //   }
+const props = defineProps<{
+ isValidationError: boolean
+}>();
+
+const componentStyles = computed(() => ({
+  width: '12rem',
+  border: props.isValidationError ? '1px solid red' : 'none'
+}))
 </script>
 
 <template>
   <el-date-picker
-    style="width: 12rem;"
+    :style="componentStyles"
     type="date"
     placeholder="Pick a day"
     :size="'large'"

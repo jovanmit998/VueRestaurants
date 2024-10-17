@@ -3,16 +3,17 @@ import { storeToRefs } from 'pinia';
 import { useRestaurantsStore } from '../store/restaurants.store';
 import DatePicker from '../components/DatePicker.vue';
 import { ref } from 'vue';
-import Size from '../components/Size.vue';
 import TimePicker from '../components/TimePicker.vue';
+import GuestSize from '../components/GuestSize.vue';
 
   const restaurantsStore = useRestaurantsStore();
-  //const {isTrue} = storeToRefs(restaurantsStore);
-  const test = ref<Date | null>(null);
-  const test2 = ref<number | null>(null)
-    const test3 = ref<string | null>(null)
-  function checkForm() {
-    console.log(test.value)
+  const {validationErrors} = storeToRefs(restaurantsStore);
+  const datePickerForm = ref<Date | null>(null);
+  const guestNumberForm = ref<number | null>(null)
+  const timePickerForm = ref<string | null>(null);
+  const submitForm = () => {
+    restaurantsStore.submitForm(datePickerForm.value, timePickerForm.value, guestNumberForm.value)
+    console.log(validationErrors.value)
   }
 </script>
 
@@ -32,10 +33,20 @@ import TimePicker from '../components/TimePicker.vue';
         <h2>Find restaurant to your liking</h2>
       </div>
       <form>
-        <Size v-model="test2" :current-value="test2" />
-        <TimePicker v-model="test3" />
-        <DatePicker v-model="test" />
-        <button @click="checkForm" type="button">Search</button>
+        <GuestSize
+          v-model="guestNumberForm"
+          :current-value="guestNumberForm"
+          :isValidationError="!!validationErrors?.guestSizeError"
+        />
+        <TimePicker
+          :isValidationError="!!validationErrors?.timeError"
+          v-model="timePickerForm"
+        />
+        <DatePicker
+          :isValidationError="!!validationErrors?.dateError"
+          v-model="datePickerForm"
+        />
+        <button @click="submitForm" type="button">Search</button>
       </form>
     </article>
   </header>

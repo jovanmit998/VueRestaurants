@@ -1,77 +1,74 @@
 import { defineStore } from "pinia";
+import { useAuthStore } from "./auth.store";
+import { getSearchId, getSearchRequest } from "../resource/api";
+import { mapRequestBody } from "../resource/api.mapper";
+import { useSearchFormStore } from "./search-form.store";
+import { Restaurant } from "../resource/api.dto";
 
 interface RestaurantsStore {
-  validationErrors: {
-    dateError: boolean;
-    timeError: boolean;
-    guestSizeError: boolean;
-  };
-}
-
-interface RestaurantsStoreState {
-  validationErrors: RestaurantsStore["validationErrors"];
-  $patch: (partialState: Partial<RestaurantsStore>) => void;
-}
-
-interface ValidationErrors {
-  dateError: boolean;
-  timeError: boolean;
-  guestSizeError: boolean;
+  restaurants: Restaurant[];
+  searchId: string;
+  isLoading: boolean;
 }
 
 export const useRestaurantsStore = defineStore("restaurantsStore", {
   state: (): RestaurantsStore => ({
-    validationErrors: {
-      dateError: false,
-      timeError: false,
-      guestSizeError: false,
-    },
+    restaurants: [],
+    searchId: "",
+    isLoading: false,
   }),
   actions: {
-    submitForm(
+    async submitForm(
       dateForm: Date | null,
       timeForm: string | null,
       guestSizeForm: number | null
     ) {
-      resetForm(this);
-      validateForm(this, dateForm, timeForm, guestSizeForm);
-      if (
-        Object.keys(this.validationErrors).some(
-          (value) => this.validationErrors[value as keyof ValidationErrors]
-        )
-      ) {
-        console.log("ERROR");
+      const searchForm = useSearchFormStore();
+      const authStore = useAuthStore();
+
+      searchForm.validateForm(dateForm, timeForm, guestSizeForm);
+      if (searchForm.isErrorPresent()) {
+        return;
+      }
+      const requestBody = mapRequestBody(dateForm, timeForm, guestSizeForm);
+      if (!authStore.token) {
+        try {
+          this.$patch({ isLoading: true });
+          await authStore.getAndSetAuthToken();
+        } catch (err) {
+          console.log(err);
+          this.$patch({ isLoading: false });
+        }
+        try {
+          const searchId = await getSearchId(authStore.token, requestBody);
+          this.$patch({ searchId: searchId.data.search_id });
+          console.log(this.searchId);
+        } catch (err) {
+          console.log(err);
+          this.$patch({ isLoading: false });
+        }
+      } else {
+        try {
+          this.$patch({ isLoading: true });
+          const searchId = await getSearchId(authStore.token, requestBody);
+          this.$patch({ searchId: searchId.data.search_id });
+          console.log(this.searchId);
+        } catch (err) {
+          console.log(err);
+          this.$patch({ isLoading: false });
+        }
+      }
+
+      try {
+        const searchResponse = await getSearchRequest(
+          authStore.token,
+          this.searchId
+        );
+        this.$patch({ isLoading: false });
+      } catch (err) {
+        console.log(err);
+        this.$patch({ isLoading: false });
       }
     },
   },
 });
-
-const validateForm = (
-  store: RestaurantsStoreState,
-  dateForm: Date | null,
-  timeForm: string | null,
-  guestSizeForm: number | null
-) => {
-  if (!dateForm)
-    store.$patch({
-      validationErrors: { ...store.validationErrors, dateError: true },
-    });
-  if (!timeForm)
-    store.$patch({
-      validationErrors: { ...store.validationErrors, timeError: true },
-    });
-  if (!guestSizeForm)
-    store.$patch({
-      validationErrors: { ...store.validationErrors, guestSizeError: true },
-    });
-};
-
-const resetForm = (store: RestaurantsStoreState) => {
-  store.$patch({
-    validationErrors: {
-      dateError: false,
-      guestSizeError: false,
-      timeError: false,
-    },
-  });
-};

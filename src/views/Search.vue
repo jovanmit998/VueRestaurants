@@ -5,15 +5,25 @@ import DatePicker from '../components/DatePicker.vue';
 import { ref } from 'vue';
 import TimePicker from '../components/TimePicker.vue';
 import GuestSize from '../components/GuestSize.vue';
+import { useSearchFormStore } from '../store/search-form.store';
 
+  const searchFormStore = useSearchFormStore();
   const restaurantsStore = useRestaurantsStore();
-  const {validationErrors} = storeToRefs(restaurantsStore);
+  const {validationErrors} = storeToRefs(searchFormStore);
   const datePickerForm = ref<Date | null>(null);
   const guestNumberForm = ref<number | null>(null)
   const timePickerForm = ref<string | null>(null);
   const submitForm = () => {
     restaurantsStore.submitForm(datePickerForm.value, timePickerForm.value, guestNumberForm.value)
-    console.log(validationErrors.value)
+  }
+  const updateGuestSizeValidation = () => {
+    searchFormStore.updateGuestSizeValidity(guestNumberForm.value)
+  }
+  const updateDatePickerValidation = () => {
+    searchFormStore.updateDatePickerValidity(datePickerForm.value)
+  }
+  const updateTimePickerValidation = () => {
+    searchFormStore.updateTimePickerValidity(timePickerForm.value)
   }
 </script>
 
@@ -37,14 +47,17 @@ import GuestSize from '../components/GuestSize.vue';
           v-model="guestNumberForm"
           :current-value="guestNumberForm"
           :isValidationError="!!validationErrors?.guestSizeError"
+          @guestSizeChange="updateGuestSizeValidation"
         />
         <TimePicker
           :isValidationError="!!validationErrors?.timeError"
           v-model="timePickerForm"
+          @time-picker-changed="updateTimePickerValidation"
         />
         <DatePicker
           :isValidationError="!!validationErrors?.dateError"
           v-model="datePickerForm"
+          @date-picker-changed="updateDatePickerValidation"
         />
         <button @click="submitForm" type="button">Search</button>
       </form>

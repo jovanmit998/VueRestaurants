@@ -14,6 +14,10 @@ const props = defineProps<{
  isValidationError: boolean
 }>();
 
+const emit = defineEmits<{
+  (e: 'datePickerChanged', payload: Date | null): void
+}>()
+
 const componentStyles = computed(() => ({
   width: '12rem',
   border: props.isValidationError ? '1px solid red' : 'none'
@@ -26,6 +30,7 @@ const componentStyles = computed(() => ({
     type="date"
     placeholder="Pick a day"
     :size="'large'"
+    @change="emit('datePickerChanged', $event)"
   />
 </template>
 

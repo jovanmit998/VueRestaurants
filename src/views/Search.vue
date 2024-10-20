@@ -6,10 +6,13 @@ import { ref } from 'vue';
 import TimePicker from '../components/TimePicker.vue';
 import GuestSize from '../components/GuestSize.vue';
 import { useSearchFormStore } from '../store/search-form.store';
+import CardLoadingSkeleton from '../components/CardLoadingSkeleton.vue';
+import RestaurantCard from '../components/RestaurantCard.vue';
 
   const searchFormStore = useSearchFormStore();
   const restaurantsStore = useRestaurantsStore();
   const {validationErrors} = storeToRefs(searchFormStore);
+  const {isLoading, restaurants} = storeToRefs(restaurantsStore);
   const datePickerForm = ref<Date | null>(null);
   const guestNumberForm = ref<number | null>(null)
   const timePickerForm = ref<string | null>(null);
@@ -59,13 +62,32 @@ import { useSearchFormStore } from '../store/search-form.store';
           v-model="datePickerForm"
           @date-picker-changed="updateDatePickerValidation"
         />
-        <button @click="submitForm" type="button">Search</button>
+        <button :disabled="isLoading" @click="submitForm" type="button">
+          Search
+        </button>
       </form>
     </article>
   </header>
   <div class="restaurants-list">
     <h3>Restaurants</h3>
-    Content
+    <span v-if="!isLoading && !restaurants.length"
+      >Search for the restaurants</span
+    >
+    <CardLoadingSkeleton v-if="isLoading" />
+    <div v-else>
+      <div
+        v-for="(restaurant, index) in restaurants"
+        :key="index"
+        class="restaurant-cards"
+      >
+        <RestaurantCard
+          :title="restaurant.post.venue_name"
+          :score="String(restaurant.post.score.toFixed(2))"
+          :sub-card-subtitle="restaurant.availability.page.subtitle"
+          :sub-card-title="restaurant.availability.page.title"
+        />
+      </div>
+    </div>
   </div>
 </template>
 
@@ -147,6 +169,10 @@ header {
 
   h3 {
     font-size: 1.5rem;
+  }
+
+  .restaurant-cards:not(:last-child) {
+    margin-bottom: 12px;
   }
 }
 </style>

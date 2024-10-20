@@ -2,6 +2,7 @@ import axios, { AxiosResponse } from "axios";
 import {
   AuthTokenResponse,
   SearchIdResponse,
+  SearchResponse,
   SearchTokenRequest,
 } from "./api.dto";
 
@@ -36,7 +37,10 @@ export const getSearchId = (
   );
 };
 
-export const getSearchRequest = (token: string, searchId: string) => {
+export const getSearchRequest = (
+  token: string,
+  searchId: string
+): Promise<AxiosResponse<SearchResponse>> => {
   return apiClient.post(
     "/search_request",
     {

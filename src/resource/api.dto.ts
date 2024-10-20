@@ -1,3 +1,5 @@
+import { AxiosError } from "axios";
+
 interface FormattedRequest {
   date: string;
   mediumDate: string;
@@ -52,6 +54,11 @@ interface Post {
   version: number;
 }
 
+export interface SearchResponse {
+  posts: Restaurant[];
+  total: number;
+}
+
 export interface Restaurant {
   availability: Availability;
   post: Post;
@@ -74,3 +81,10 @@ export interface SearchIdResponse {
   locale: string;
   search_id: string;
 }
+
+interface ErrorData {
+  message: string;
+  status: number;
+}
+
+export type ApiError = AxiosError<ErrorData>;
